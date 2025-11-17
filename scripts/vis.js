@@ -1,26 +1,27 @@
-// Load data from data/ctf_data.json
-d3.json("data/ctf_data.json").then(renderVisualization);
+// Load data from data/flattened_scores.json
+d3.json("data/flattened_scores.json").then(renderVisualization);
 
 const width = window.innerWidth - 100;
 const height = window.innerHeight - 150;
 const maxRank = 10;
 
 function renderVisualization(data) {
-    const competitions = Object.values(data).sort((a, b) => new Date(a.time) - new Date(b.time)); // Sort competitions by time
+    const scores = data.sort((a, b) => new Date(a.time) - new Date(b.time)).filter(d => d.team_name.includes("L3ak"))
+    console.log(scores);
 
-
-    // Scales
-
+    // Scales and Axes
     const vis = d3.select("#vis").append("svg")
         .attr("width", width + 100)
         .attr("height", height + 100)
         .append("g")
         .attr("transform", `translate(${50}, ${50})`);
 
-    const xScale = d3.scalePoint()
-        .domain(competitions.map(d => d.time))
-        .range([0, width])
-        .padding(0.5) // Add padding to make space for labels
+    let mintime = d3.min(scores, d => d.time);
+    let maxtime = d3.max(scores, d => d.time);
+
+    const xScale = d3.scaleLinear()
+        .domain([mintime, maxtime])
+        .range([0, width]);
 
     const yScale = d3.scaleLinear()
         .domain([1, maxRank]) // Rank 1 is at the top
@@ -30,11 +31,20 @@ function renderVisualization(data) {
         .domain(teams)
         .range(['#1e88e5', '#ffb300', '#00bcd4', '#43a047', '#e53935']); // Distinct colors*/
 
+    const bumpLine = d3.line()
+        .x(d => xScale(d.time))
+        .y(d => yScale(d.place));
+
+    let date_ticks = d3.range(11).map(i => {
+        return mintime + i * (maxtime - mintime) / 10;
+    });
+
+    //console.log(date_ticks);
 
     // X axis
     vis.append("g")
         .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(xScale).tickSize(0).tickFormat(() => ""))
+        .call(d3.axisBottom(xScale).tickValues(date_ticks).tickFormat(d => new Date(d * 1000).toLocaleDateString()))
         .selectAll("text")
         .attr("class", "text-sm axis-label");
 
@@ -46,12 +56,13 @@ function renderVisualization(data) {
 
     // Draw lines for each team
     vis.append("g")
-        .data(competitions)
-        .selectAll(".competition-line")
-        .data(d => d.scores)
+        .selectAll(".line")
+        .data(d3.group(scores, d => d.team_id)) // Group data by team
+        .enter()
         .append("path")
-        .attr("class", "competition-line")
+        .attr("class", "line")
         .attr("fill", "none")
-        .attr("stroke", "#1e88e5")
+        .attr("stroke", (d, i) => d3.schemeCategory10[i % 10]) // Use D3's category10 color scheme
         .attr("stroke-width", 2)
+        .attr("d", d => bumpLine(d[1])); // d[1] contains the array of scores for the team
 }
