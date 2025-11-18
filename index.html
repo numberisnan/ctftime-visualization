@@ -7,7 +7,17 @@
 <body>
 
 <div id="vis">
-    
+    <input type="range" id="connect_days" name="connect_days" min="1" max="60" value="28">
+    <label for="connect_days">Connect points within <span id="connect_days_value">28</span> days</label>
+    <svg id="bump">
+        <g class="main">
+            <g class="x_axis"></g>
+            <g class="y_axis"></g>
+            <g class="lines"></g>
+            <g class="points"></g>
+        </g>
+    </svg>
+
 </div>
 
 <script src="scripts/vis.js"></script>
