@@ -7,8 +7,26 @@
 <body>
 
 <div id="vis">
-    <input type="range" id="connect_days" name="connect_days" min="1" max="60" value="28">
-    <label for="connect_days">Connect points within <span id="connect_days_value">28</span> days</label>
+    <h1>CTF Top 10 Score Bump Chart Visualization</h1>
+    <p>Filter by competition name, team name, or compare teams directly. Compare teams directly.</p>
+    <div id="controls">
+        <div class="column">
+            <p>Filtering options</p>
+            <input type="number" id="connect_days" name="connect_days" value="28" >
+            <label for="connect_days">Connect points within <span id="connect_days_value">28</span> days</label><br>
+            <input type="text" id="team_filter" name="team_filter" value="" >
+            <label for="team_filter">Filter by team name (substring)</label><br>
+            <input type="text" id="title_filter" name="title_filter" value="" >
+            <label for="title_filter">Filter by competition title (substring)</label>
+        </div>
+        <div class="column">
+            <p>Compare teams directly (fulltext only)</p>
+            <input type="input" id="compare_mode">
+            <label for="compare_mode">Team 1</label><br>
+            <input type="input" id="compare_mode_2">
+            <label for="compare_mode_2">Team 2</label><br>
+        </div>
+    </div>
     <svg id="bump">
         <g class="main">
             <g class="x_axis"></g>
