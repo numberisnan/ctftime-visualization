@@ -1,5 +1,5 @@
 const options = { connect_days: 28 };
-const filter = { team_filter: "", title_filter: "" };
+const filter = { team_filter: "", title_filter: "", country_filter: "" };
 const teams_to_compare = ["", ""];
 
 const width = window.innerWidth - 100;
@@ -86,7 +86,7 @@ function renderVisualization(data, options) {
 
     pointsEnter
         .append("title")
-        .text(d => `${d.team_name}\nRank: ${d.place}\nDate: ${new Date(d.time * 1000).toLocaleDateString()}\nCompetition: ${d.competition_title}`);
+        .text(d => `${d.team_name}\nRank: ${d.place}\nDate: ${new Date(d.time * 1000).toLocaleDateString()}\nCompetition: ${d.competition_title}\nCountry: ${d.country_name}`);
 
     // Merge Enter and Update selections
     points = pointsEnter.merge(points);
@@ -102,7 +102,7 @@ function renderVisualization(data, options) {
     points
         // Select the title element of the updated points and update its text
         .select("title")
-        .text(d => `${d.team_name}\nRank: ${d.place}\nDate: ${new Date(d.time * 1000).toLocaleDateString()}\nCompetition: ${d.competition_title}`);
+        .text(d => `${d.team_name}\nRank: ${d.place}\nDate: ${new Date(d.time * 1000).toLocaleDateString()}\nCompetition: ${d.competition_title}\nCountry: ${d.country_name}`);
 
     // Update the fill color for all merged points, including those that existed before (if their team_id/data changed)
     points
@@ -124,14 +124,21 @@ function on_data_loaded(data) {
     d3.select("#team_filter").on("input", function() {
         filter.team_filter = this.value;
         d3.select(".lines").selectAll("*").remove(); // Clear existing visualization
-        const filtered_data = data.filter(d => d.team_name.includes(filter.team_filter) && d.competition_title.includes(filter.title_filter));
+        const filtered_data = data.filter(d => (d.country.includes(filter.country_filter) || d.country_name.includes(filter.country_filter)) && d.team_name.includes(filter.team_filter) && d.competition_title.includes(filter.title_filter));
         renderVisualization(filtered_data, options);
     });
 
     d3.select("#title_filter").on("input", function() {
         filter.title_filter = this.value;
         d3.select(".lines").selectAll("*").remove(); // Clear existing visualization
-        const filtered_data = data.filter(d => d.competition_title.includes(filter.title_filter) && d.team_name.includes(filter.team_filter));
+        const filtered_data = data.filter(d => (d.country.includes(filter.country_filter) || d.country_name.includes(filter.country_filter)) && d.team_name.includes(filter.team_filter) && d.competition_title.includes(filter.title_filter));
+        renderVisualization(filtered_data, options);
+    });
+
+    d3.select("#country_filter").on("input", function() {
+        filter.country_filter = this.value;
+        d3.select(".lines").selectAll("*").remove(); // Clear existing visualization
+        const filtered_data = data.filter(d => (d.country.includes(filter.country_filter) || d.country_name.includes(filter.country_filter)) && d.team_name.includes(filter.team_filter) && d.competition_title.includes(filter.title_filter));
         renderVisualization(filtered_data, options);
     });
 
@@ -151,4 +158,4 @@ function on_data_loaded(data) {
 }
 
 // Load data from data/flattened_scores.json
-d3.json("data/flattened_scores.json").then( data => on_data_loaded(data));
+d3.json("data/data.json").then( data => on_data_loaded(data));
