@@ -1,5 +1,6 @@
 const options = { connect_days: 28 };
 const filter = { team_filter: "", title_filter: "" };
+const teams_to_compare = ["", ""];
 
 const width = window.innerWidth - 100;
 const height = window.innerHeight - 300;
@@ -131,6 +132,20 @@ function on_data_loaded(data) {
         filter.title_filter = this.value;
         d3.select(".lines").selectAll("*").remove(); // Clear existing visualization
         const filtered_data = data.filter(d => d.competition_title.includes(filter.title_filter) && d.team_name.includes(filter.team_filter));
+        renderVisualization(filtered_data, options);
+    });
+
+    d3.select("#compare_mode").on("input", function() {
+        teams_to_compare[0] = this.value;
+        d3.select(".lines").selectAll("*").remove(); // Clear existing visualization
+        const filtered_data = data.filter(d => d.team_name === teams_to_compare[0] || d.team_name === teams_to_compare[1]);
+        renderVisualization(filtered_data, options);
+    });
+
+    d3.select("#compare_mode_2").on("input", function() {
+        teams_to_compare[1] = this.value;
+        d3.select(".lines").selectAll("*").remove(); // Clear existing visualization
+        const filtered_data = data.filter(d => d.team_name === teams_to_compare[0] || d.team_name === teams_to_compare[1]);
         renderVisualization(filtered_data, options);
     });
 }
